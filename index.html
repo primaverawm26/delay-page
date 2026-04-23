@@ -132,7 +132,7 @@
         <div class="icon">⏸️</div>
         <h1>Hold on a moment</h1>
         <div class="message">
-            You're about to visit Hacker News. Take a breath and ask yourself: do you really need to be there right now?
+            You're about to visit <span id="siteName">this site</span>. Take a breath and ask yourself: do you really need to be there right now?
         </div>
         
         <div class="timer-container">
@@ -154,6 +154,22 @@
         let timeLeft = 10;
         const timerElement = document.getElementById('timer');
         const proceedBtn = document.getElementById('proceedBtn');
+        const siteNameElement = document.getElementById('siteName');
+        
+        // Get the target URL from query parameter
+        const params = new URLSearchParams(window.location.search);
+        const targetUrl = params.get('url');
+        
+        // Set the site name in the message
+        if (targetUrl) {
+            try {
+                const urlObj = new URL(targetUrl);
+                const siteName = urlObj.hostname.replace('www.', '');
+                siteNameElement.textContent = siteName;
+            } catch (e) {
+                siteNameElement.textContent = 'this site';
+            }
+        }
         
         function updateTimer() {
             timerElement.textContent = timeLeft;
@@ -161,7 +177,7 @@
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 proceedBtn.disabled = false;
-                proceedBtn.textContent = 'Visit Hacker News';
+                proceedBtn.textContent = 'Continue';
                 // Auto-redirect after delay completes
                 setTimeout(() => {
                     proceedToSite();
@@ -174,7 +190,11 @@
         const timerInterval = setInterval(updateTimer, 1000);
         
         function proceedToSite() {
-            window.location.href = 'https://news.ycombinator.com';
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            } else {
+                window.history.back();
+            }
         }
         
         function skipDelay() {
